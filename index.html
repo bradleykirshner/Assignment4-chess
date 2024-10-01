@@ -97,6 +97,55 @@
           return false; // Invalid move
         }
 
+        function isValidKnightMove(startRow, startCol, endRow, endCol) {
+          const rowDiff = Math.abs(startRow - endRow);
+          const colDiff = Math.abs(startCol - endCol);
+
+          // Valid knight move is either 2 squares in one direction and 1 in the other
+          return (rowDiff === 2 && colDiff === 1) || (rowDiff === 1 && colDiff === 2);
+        }
+
+        function isValidBishopMove(startRow, startCol, endRow, endCol) {
+          // Check if the move is a valid diagonal move
+          if (Math.abs(startRow - endRow) !== Math.abs(startCol - endCol)) {
+            return false;
+          }
+
+          // Determine the direction of movement
+          const rowStep = startRow < endRow ? 1 : -1;
+          const colStep = startCol < endCol ? 1 : -1;
+
+          // Check for any blocking pieces in the path
+          let row = startRow + rowStep;
+          let col = startCol + colStep;
+          while (row !== endRow && col !== endCol) {
+            if (game[row][col] !== "") {
+              return false; // There's a piece blocking the path
+            }
+            row += rowStep;
+            col += colStep;
+          }
+
+          return true;
+        }
+
+        function isValidQueenMove(startRow, startCol, endRow, endCol) {
+          // Check if the move is a valid rook or bishop move
+          return (
+            isValidRookMove(startRow, startCol, endRow, endCol) ||
+            isValidBishopMove(startRow, startCol, endRow, endCol)
+          );
+        }
+
+        function isValidKingMove(startRow, startCol, endRow, endCol) {
+          // Check if the king moves one square in any direction
+          const rowDiff = Math.abs(startRow - endRow);
+          const colDiff = Math.abs(startCol - endCol);
+
+          // The king moves exactly one square in any direction
+          return (rowDiff <= 1 && colDiff <= 1);
+        }
+
         // Handle square click for moving pieces
         function handleClick(row, col) {
           setStep(step + 1);
@@ -106,25 +155,49 @@
             const [startRow, startCol] = selectedSquare; // Destructure here
             const piece = game[startRow][startCol]; // Declare piece here
 
-            if (
-              piece.toLowerCase() === "p" &&
-              isValidPawnMove(startRow, startCol, row, col, piece)
-            ) {
+            if ( piece.toLowerCase() === "p" && isValidPawnMove(startRow, startCol, row, col, piece) ) {
               const newGame = game.map((row) => row.slice());
               newGame[row][col] = piece;
               newGame[startRow][startCol] = "";
               setGame(newGame);
               setSelectedSquare(null);
-            } else if (
-              piece.toLowerCase() === "r" &&
-              isValidRookMove(startRow, startCol, row, col, piece)
-            ) {
+            } 
+            else if ( piece.toLowerCase() === "r" && isValidRookMove(startRow, startCol, row, col, piece) ) {
               const newGame = game.map((row) => row.slice());
               newGame[row][col] = piece;
               newGame[startRow][startCol] = "";
               setGame(newGame);
               setSelectedSquare(null);
-            } else {
+            } 
+            else if (piece.toLowerCase() === "n" && isValidKnightMove(startRow, startCol, row, col)) {
+              const newGame = game.map((row) => row.slice());
+              newGame[row][col] = piece;
+              newGame[startRow][startCol] = "";
+              setGame(newGame);
+              setSelectedSquare(null);
+            }
+            else if (piece.toLowerCase() === "b" && isValidBishopMove(startRow, startCol, row, col)) {
+              const newGame = game.map((row) => row.slice());
+              newGame[row][col] = piece;
+              newGame[startRow][startCol] = "";
+              setGame(newGame);
+              setSelectedSquare(null);
+            }
+            else if (piece.toLowerCase() === "q" && isValidQueenMove(startRow, startCol, row, col)) {
+              const newGame = game.map((row) => row.slice());
+              newGame[row][col] = piece;
+              newGame[startRow][startCol] = "";
+              setGame(newGame);
+              setSelectedSquare(null);
+            }
+            else if (piece.toLowerCase() === "k" && isValidKingMove(startRow, startCol, row, col)) {
+              const newGame = game.map((row) => row.slice());
+              newGame[row][col] = piece;
+              newGame[startRow][startCol] = "";
+              setGame(newGame);
+              setSelectedSquare(null);
+            }
+            else {
               setSelectedSquare(null); // Deselect if the move is invalid
             }
           } else {
