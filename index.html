@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Chessboard with Piece Images</title>
+    <title>Chess</title>
     <script
       src="https://unpkg.com/react@18/umd/react.development.js"
       crossorigin
@@ -160,22 +160,24 @@
             const [startRow, startCol] = selectedSquare; // Destructure here
             const piece = game[startRow][startCol]; // Declare piece here
 
-          if (
-            (piece.toLowerCase() === "p" && isValidPawnMove(startRow, startCol, row, col, piece)) ||
-            (piece.toLowerCase() === "r" && isValidRookMove(startRow, startCol, row, col, piece)) ||
-            (piece.toLowerCase() === "n" && isValidKnightMove(startRow, startCol, row, col)) ||
-            (piece.toLowerCase() === "b" && isValidBishopMove(startRow, startCol, row, col)) ||
-            (piece.toLowerCase() === "q" && isValidQueenMove(startRow, startCol, row, col)) ||
-            (piece.toLowerCase() === "k" && isValidKingMove(startRow, startCol, row, col))
-          ) {
-            const capturedPiece = game[row][col];
+            if (
+              (piece.toLowerCase() === "p" && isValidPawnMove(startRow, startCol, row, col, piece)) ||
+              (piece.toLowerCase() === "r" && isValidRookMove(startRow, startCol, row, col, piece)) ||
+              (piece.toLowerCase() === "n" && isValidKnightMove(startRow, startCol, row, col)) ||
+              (piece.toLowerCase() === "b" && isValidBishopMove(startRow, startCol, row, col)) ||
+              (piece.toLowerCase() === "q" && isValidQueenMove(startRow, startCol, row, col)) ||
+              (piece.toLowerCase() === "k" && isValidKingMove(startRow, startCol, row, col))
+            ) {
+              const capturedPiece = game[row][col];
 
-            // Move the piece
-            const newGame = game.map((row) => row.slice());
-            newGame[row][col] = piece;
-            newGame[startRow][startCol] = "";
-            setGame(newGame);
-            setSelectedSquare(null);
+              // Move the piece
+              const newGame = game.map((row) => row.slice());
+              newGame[row][col] = piece;
+              newGame[startRow][startCol] = "";
+              setGame(newGame);
+              setSelectedSquare(null);
+
+              speak(`${piece} moves to ${row}, ${col}.`);
 
               // Check if a king was captured
               if (capturedPiece === "k") {
@@ -204,6 +206,18 @@
           setGameOver(false);
           setWinner(null);
           setStep(0);
+        }
+
+        function speak(move) {
+          // Create a SpeechSynthesisUtterance
+          const utterance = new SpeechSynthesisUtterance(move);
+
+          // Select a voice
+          const voices = speechSynthesis.getVoices();
+          utterance.voice = voices[0]; // Choose a specific voice
+
+          // Speak the text
+          speechSynthesis.speak(utterance);
         }
 
         return (
