@@ -54,6 +54,8 @@
         const [game, setGame] = React.useState(initialGameState);
         const [selectedSquare, setSelectedSquare] = React.useState(null);
         const [step, setStep] = React.useState(0);
+        const [gameOver, setGameOver] = React.useState(false);
+        const [winner, setWinner] = React.useState(null);
 
         function isValidPawnMove(startRow, startCol, endRow, endCol, piece) {
           const direction = piece === "P" ? -1 : 1;
@@ -148,54 +150,43 @@
 
         // Handle square click for moving pieces
         function handleClick(row, col) {
+          if (gameOver) return;
+
           setStep(step + 1);
 
           if (selectedSquare) {
             const newGame = game.map((row) => row.slice());
+
             const [startRow, startCol] = selectedSquare; // Destructure here
             const piece = game[startRow][startCol]; // Declare piece here
 
-            if ( piece.toLowerCase() === "p" && isValidPawnMove(startRow, startCol, row, col, piece) ) {
-              const newGame = game.map((row) => row.slice());
-              newGame[row][col] = piece;
-              newGame[startRow][startCol] = "";
-              setGame(newGame);
-              setSelectedSquare(null);
-            } 
-            else if ( piece.toLowerCase() === "r" && isValidRookMove(startRow, startCol, row, col, piece) ) {
-              const newGame = game.map((row) => row.slice());
-              newGame[row][col] = piece;
-              newGame[startRow][startCol] = "";
-              setGame(newGame);
-              setSelectedSquare(null);
-            } 
-            else if (piece.toLowerCase() === "n" && isValidKnightMove(startRow, startCol, row, col)) {
-              const newGame = game.map((row) => row.slice());
-              newGame[row][col] = piece;
-              newGame[startRow][startCol] = "";
-              setGame(newGame);
-              setSelectedSquare(null);
-            }
-            else if (piece.toLowerCase() === "b" && isValidBishopMove(startRow, startCol, row, col)) {
-              const newGame = game.map((row) => row.slice());
-              newGame[row][col] = piece;
-              newGame[startRow][startCol] = "";
-              setGame(newGame);
-              setSelectedSquare(null);
-            }
-            else if (piece.toLowerCase() === "q" && isValidQueenMove(startRow, startCol, row, col)) {
-              const newGame = game.map((row) => row.slice());
-              newGame[row][col] = piece;
-              newGame[startRow][startCol] = "";
-              setGame(newGame);
-              setSelectedSquare(null);
-            }
-            else if (piece.toLowerCase() === "k" && isValidKingMove(startRow, startCol, row, col)) {
-              const newGame = game.map((row) => row.slice());
-              newGame[row][col] = piece;
-              newGame[startRow][startCol] = "";
-              setGame(newGame);
-              setSelectedSquare(null);
+          if (
+            (piece.toLowerCase() === "p" && isValidPawnMove(startRow, startCol, row, col, piece)) ||
+            (piece.toLowerCase() === "r" && isValidRookMove(startRow, startCol, row, col, piece)) ||
+            (piece.toLowerCase() === "n" && isValidKnightMove(startRow, startCol, row, col)) ||
+            (piece.toLowerCase() === "b" && isValidBishopMove(startRow, startCol, row, col)) ||
+            (piece.toLowerCase() === "q" && isValidQueenMove(startRow, startCol, row, col)) ||
+            (piece.toLowerCase() === "k" && isValidKingMove(startRow, startCol, row, col))
+          ) {
+            const capturedPiece = game[row][col];
+
+            // Move the piece
+            const newGame = game.map((row) => row.slice());
+            newGame[row][col] = piece;
+            newGame[startRow][startCol] = "";
+            setGame(newGame);
+            setSelectedSquare(null);
+
+              // Check if a king was captured
+              if (capturedPiece === "k") {
+                setGameOver(true);
+                setWinner("White");
+                alert("White wins! Game Over");
+              } else if (capturedPiece === "K") {
+                setGameOver(true);
+                setWinner("Black");
+                alert("Black wins! Game Over");
+              }
             }
             else {
               setSelectedSquare(null); // Deselect if the move is invalid
@@ -207,13 +198,23 @@
           }
         }
 
+        function restartGame() {
+          setGame(initialGameState);
+          setSelectedSquare(null);
+          setGameOver(false);
+          setWinner(null);
+          setStep(0);
+        }
+
         return (
           <div>
+            {gameOver ? (<h2>{winner} wins! Game Over</h2>) : null}
             <Board
               game={game}
               onSquareClick={handleClick}
               selectedSquare={selectedSquare}
             />
+            <button onClick={restartGame}> Start/Restart </button>
           </div>
         );
       }
